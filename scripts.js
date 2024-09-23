@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Отримуємо елементи для обов'язкових, середніх та необов'язкових завдань
     const importantTaskInput = document.getElementById('importantTaskInput');
     const addImportantTaskButton = document.getElementById('addImportantTaskButton');
     const importantTaskList = document.getElementById('importantTaskList');
@@ -12,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const addOptionalTaskButton = document.getElementById('addOptionalTaskButton');
     const optionalTaskList = document.getElementById('optionalTaskList');
 
-    // Відновлення задач з LocalStorage
     const importantTasks = JSON.parse(localStorage.getItem('importantTasks')) || [];
     const mediumTasks = JSON.parse(localStorage.getItem('mediumTasks')) || [];
     const optionalTasks = JSON.parse(localStorage.getItem('optionalTasks')) || [];
@@ -21,12 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     mediumTasks.forEach(task => addTaskToDOM(task, mediumTaskList, mediumTasks, 'mediumTasks'));
     optionalTasks.forEach(task => addTaskToDOM(task, optionalTaskList, optionalTasks, 'optionalTasks'));
 
-    // Додавання завдань
     addImportantTaskButton.addEventListener('click', () => addTask(importantTaskInput, importantTaskList, importantTasks, 'importantTasks'));
     addMediumTaskButton.addEventListener('click', () => addTask(mediumTaskInput, mediumTaskList, mediumTasks, 'mediumTasks'));
     addOptionalTaskButton.addEventListener('click', () => addTask(optionalTaskInput, optionalTaskList, optionalTasks, 'optionalTasks'));
 
-    // Функція для додавання задачі в DOM
     function addTaskToDOM(task, listElement, taskArray, storageKey) {
         const li = document.createElement('li');
         li.draggable = true; 
@@ -35,10 +31,13 @@ document.addEventListener('DOMContentLoaded', () => {
         checkbox.type = 'checkbox';
         checkbox.checked = task.done;
         checkbox.addEventListener('change', () => {
-            task.done = checkbox.checked;
-            updateTaskStyle(li, task.done);
-            localStorage.setItem(storageKey, JSON.stringify(taskArray));
-        });
+    task.done = checkbox.checked;
+    updateTaskStyle(li, task.done);
+
+    const currentKey = getSourceKey(li); // Визначаємо поточну категорію
+    localStorage.setItem(currentKey, JSON.stringify(taskArray)); // Оновлюємо локальне сховище поточної категорії
+});
+
 
         const span = document.createElement('span');
         span.textContent = task.text;
@@ -66,7 +65,18 @@ document.addEventListener('DOMContentLoaded', () => {
             saveOrder(listElement, taskArray, storageKey);
         });
 
-        // Додайте можливість перетягування між списками
+        listElement.addEventListener('dragend', () => {
+    li.classList.remove('dragging');
+    // Видалити завдання з попередньої категорії
+    const sourceKey = getSourceKey(li); // Отримуємо категорію, з якої взято завдання
+    const sourceArray = JSON.parse(localStorage.getItem(sourceKey)) || [];
+    deleteTaskFromArray(li, sourceArray, sourceKey);
+    
+    // Зберегти новий порядок у цільовій категорії
+    saveOrder(listElement, taskArray, storageKey);
+});
+
+
         listElement.addEventListener('dragover', (e) => {
             e.preventDefault();
             const draggingTask = document.querySelector('.dragging');
@@ -79,10 +89,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         listElement.addEventListener('drop', (e) => {
-            const draggingTask = document.querySelector('.dragging');
-            const newTaskArray = updateTaskArray(draggingTask, taskArray, storageKey);
-            localStorage.setItem(storageKey, JSON.stringify(newTaskArray));
-        });
+    const draggingTask = document.querySelector('.dragging');
+    const newTaskArray = updateTaskArray(draggingTask, taskArray, storageKey);
+
+    // Видаляємо завдання з попередньої категорії
+    const sourceKey = getSourceKey(draggingTask);
+    const sourceArray = JSON.parse(localStorage.getItem(sourceKey)) || [];
+    deleteTaskFromArray(draggingTask, sourceArray, sourceKey);
+
+    // Оновлюємо нову категорію
+    localStorage.setItem(storageKey, JSON.stringify(newTaskArray));
+});
+
     }
 
     function addTask(inputElement, listElement, taskArray, storageKey) {
@@ -96,22 +114,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function getSourceKey(taskElement) {
+    // Наприклад, можна отримати ключ зі списку (listElement) батьківського елемента
+    return taskElement.closest('ul').dataset.key; // наприклад, data-key="middle" або "optional"
+}
+
+
 function updateTaskArray(draggingTask, targetArray, targetKey) {
     const taskText = draggingTask.querySelector('span').textContent;
     const sourceKey = getSourceKey(draggingTask);
 
-    // Видаляємо завдання з масиву джерела
     const sourceArray = JSON.parse(localStorage.getItem(sourceKey)) || [];
     const index = sourceArray.findIndex(task => task.text === taskText);
     if (index !== -1) {
-        sourceArray.splice(index, 1); // Видаляємо завдання з джерела
-        localStorage.setItem(sourceKey, JSON.stringify(sourceArray)); // Оновлюємо LocalStorage
+        sourceArray.splice(index, 1); 
+        localStorage.setItem(sourceKey, JSON.stringify(sourceArray));
     }
 
-    // Додаємо завдання до цільового масиву, якщо його там ще немає
-    if (!targetArray.some(task => task.text === taskText)) {
-        const newTask = { text: taskText, done: false };
+    const doneStatus = draggingTask.querySelector('input[type="checkbox"]').checked;
+    const newTask = { text: taskText, done: doneStatus };
+
+    const existingIndex = targetArray.findIndex(task => task.text === taskText);
+    if (existingIndex === -1) {
         targetArray.push(newTask);
+    } else {
+        targetArray[existingIndex].done = doneStatus;
     }
 
     return targetArray;
@@ -119,7 +146,6 @@ function updateTaskArray(draggingTask, targetArray, targetKey) {
 
 
     function getSourceKey(draggingTask) {
-        // Визначте ключ джерела (importantTasks, mediumTasks або optionalTasks)
         if (importantTaskList.contains(draggingTask)) {
             return 'importantTasks';
         } else if (mediumTaskList.contains(draggingTask)) {
@@ -159,6 +185,15 @@ function updateTaskArray(draggingTask, targetArray, targetKey) {
         });
         localStorage.setItem(storageKey, JSON.stringify(updatedTasks));
     }
+
+    function deleteTaskFromArray(li, taskArray, storageKey) {
+    const taskText = li.querySelector('span').textContent;
+    const index = taskArray.findIndex(task => task.text === taskText);
+    if (index !== -1) {
+        taskArray.splice(index, 1); 
+        localStorage.setItem(storageKey, JSON.stringify(taskArray)); 
+    }
+}
 
     function deleteTask(li, taskArray, storageKey) {
         const taskText = li.querySelector('span').textContent;
