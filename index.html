@@ -1,17 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ToDo List</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <h1>ToDo List</h1>
-    <input type="text" id="taskInput" placeholder="Add a new task">
-    <button id="addTaskButton">Add Task</button>
-    <ul id="taskList"></ul>
-    
+
+    <div class="task-container">
+        <div class="task-category">
+            <h2>Important Tasks</h2>
+            <input type="text" id="importantTaskInput" placeholder="Add important task">
+            <button id="addImportantTaskButton">Add Task</button>
+            <ul id="importantTaskList"></ul>
+        </div>
+
+        <div class="task-category">
+            <h2>Medium Tasks</h2>
+            <input type="text" id="mediumTaskInput" placeholder="Add medium task">
+            <button id="addMediumTaskButton">Add Task</button>
+            <ul id="mediumTaskList"></ul>
+        </div>
+
+        <div class="task-category">
+            <h2>Optional Tasks</h2>
+            <input type="text" id="optionalTaskInput" placeholder="Add optional task">
+            <button id="addOptionalTaskButton">Add Task</button>
+            <ul id="optionalTaskList"></ul>
+        </div>
+    </div>
+
     <script src="scripts.js"></script>
 </body>
+
 </html>
