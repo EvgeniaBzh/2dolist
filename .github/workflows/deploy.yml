@@ -27,6 +27,6 @@ jobs:
       - name: Deploy to Azure Web App
         uses: Azure/webapps-deploy@v2
         with:
-          app-name: '2dolist'  # Назва вашого Azure Web App
+          app-name: 'to2list'  # Назва вашого Azure Web App
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}  # Використовуйте секрет для публікаційного профілю
           package: '.'  # Вказує на кореневу папку проекту, де знаходяться файли для розгортання
