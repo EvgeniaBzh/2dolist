@@ -4,8 +4,8 @@
   "description": "Простий список справ на HTML, CSS та JS",
   "main": "scripts.js", 
   "scripts": {
-    "start": "live-server", // Якщо ви використовуєте live-server або іншу команду для запуску, напишіть її тут.
-    "build": "ваша_команда_для_збірки" // Якщо у вас немає команди для збірки, це поле можна пропустити.
+    "start": "live-server", 
+    "build": "ваша_команда_для_збірки" 
   },
   "author": "EugeniaBzh",
   "license": "ISC",
