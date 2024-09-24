@@ -1,11 +1,10 @@
 {
-  "name": "to2list", 
-  "version": "1.0.0", 
+  "name": "to2list",
+  "version": "1.0.0",
   "description": "Простий список справ на HTML, CSS та JS",
-  "main": "scripts.js", 
+  "main": "scripts.js",
   "scripts": {
-    "start": "live-server", 
-    "build": "ваша_команда_для_збірки" 
+    "start": "live-server"
   },
   "author": "EugeniaBzh",
   "license": "ISC",
