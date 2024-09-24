@@ -1,4 +1,4 @@
-name: Deploy to Azure WebApp
+name: Deploy
 
 on:
   push:
@@ -20,15 +20,11 @@ jobs:
 
       - name: Install dependencies (якщо використовуєте npm або yarn)
         run: npm install
-         working-directory: ./2dolist
+        working-directory: ./2dolist  # Правильний відступ
 
       - name: Build the app (якщо потрібна збірка)
         run: npm run build
-         working-directory: ./2dolist
+        working-directory: ./2dolist  # Правильний відступ
 
-      - name: Deploy to Azure WebApp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 2dolist # Вкажіть тут ім'я вашого веб-додатка в Azure
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: .
+      - name: Deploy (додайте ваші команди для розгортання)
+        run: echo "Deployment step goes here"
