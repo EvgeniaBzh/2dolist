@@ -21,8 +21,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build
-        run: npm run build  # Якщо у вас є команда build у package.json
+      # - name: Build
+      #   run: npm run build  # Закоментуйте або видаліть цей рядок
 
       - name: Deploy to Azure Web App
         uses: Azure/webapps-deploy@v2
