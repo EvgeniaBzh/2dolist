@@ -1,4 +1,4 @@
-name: Deploy to Azure Web App
+name: Deploy to Azure WebApp
 
 on:
   push:
@@ -13,20 +13,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
+      - name: Setup Node.js (якщо потрібен для обробки npm/yarn)
         uses: actions/setup-node@v2
         with:
           node-version: "14"
 
-      - name: Install dependencies
+      - name: Install dependencies (якщо використовуєте npm або yarn)
         run: npm install
+        working-directory: ./
 
-      - name: Build project
+      - name: Build the app (якщо потрібна збірка)
         run: npm run build
+        working-directory: ./
 
-      - name: Deploy to Azure Web App
+      - name: Deploy to Azure WebApp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-          slot-name: "production"
-          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          app-name: 2dolist # Вкажіть тут ім'я вашого веб-додатка в Azure
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: .
