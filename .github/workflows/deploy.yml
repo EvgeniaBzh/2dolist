@@ -20,11 +20,11 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./2dolist  # Переконайтеся, що цей каталог правильний
+        working-directory: .  # Використовуйте кореневу папку
 
       - name: Build the app
         run: npm run build
-        working-directory: ./2dolist  # Переконайтеся, що цей каталог правильний
+        working-directory: .  # Використовуйте кореневу папку
 
       - name: Deploy
         run: echo "Deployment step goes here"
