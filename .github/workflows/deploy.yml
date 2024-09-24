@@ -22,9 +22,5 @@ jobs:
         run: npm install
         working-directory: .  # Використовуйте кореневу папку
 
-      - name: Build the app
-        run: npm run build
-        working-directory: .  # Використовуйте кореневу папку
-
       - name: Deploy
         run: echo "Deployment step goes here"
