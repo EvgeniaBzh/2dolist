@@ -20,11 +20,11 @@ jobs:
 
       - name: Install dependencies (якщо використовуєте npm або yarn)
         run: npm install
-        working-directory: ./
+         working-directory: ./2dolist
 
       - name: Build the app (якщо потрібна збірка)
         run: npm run build
-        working-directory: ./
+         working-directory: ./2dolist
 
       - name: Deploy to Azure WebApp
         uses: azure/webapps-deploy@v2
