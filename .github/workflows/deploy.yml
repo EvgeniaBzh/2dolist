@@ -11,20 +11,20 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3  # Оновлено до v3
 
-      - name: Setup Node.js (якщо потрібен для обробки npm/yarn)
-        uses: actions/setup-node@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v3  # Оновлено до v3
         with:
-          node-version: "14"
+          node-version: "20"  # Оновлено до 20
 
-      - name: Install dependencies (якщо використовуєте npm або yarn)
+      - name: Install dependencies
         run: npm install
-        working-directory: ./2dolist  # Правильний відступ
+        working-directory: ./2dolist  # Переконайтеся, що цей каталог правильний
 
-      - name: Build the app (якщо потрібна збірка)
+      - name: Build the app
         run: npm run build
-        working-directory: ./2dolist  # Правильний відступ
+        working-directory: ./2dolist  # Переконайтеся, що цей каталог правильний
 
-      - name: Deploy (додайте ваші команди для розгортання)
+      - name: Deploy
         run: echo "Deployment step goes here"
