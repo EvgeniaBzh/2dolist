@@ -2,21 +2,24 @@
 <html lang="en">
 
 <head>
-<script type="text/javascript" async src="https://az416426.vo.msecnd.net/scripts/a/ai.0.js"></script>
-<script type="text/javascript">
-    var appInsights = window.appInsights || function (config) {
-        function r(config) { t[config] = function () { var i = arguments; t.queue.push(function () { t[config].apply(t, i) }) } }
-        var t = { config: config }, u = document, s = window, o = "script", f = u.createElement(o), h = u.getElementsByTagName(o)[0];
-        f.src = config.url || "https://az416426.vo.msecnd.net/scripts/a/ai.0.js";
-        h.parentNode.insertBefore(f, h); t.queue = []; t.version = "2.0"; r("trackEvent"); r("trackPageView"); r("trackException"); r("trackMetric"); r("trackTrace"); r("startTrackEvent"); r("stopTrackEvent"); r("startTrackPage"); r("stopTrackPage"); return t
-    }({
-        instrumentationKey: "b0815984-9213-409a-b83d-c320dc5e52b9" 
-    });
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo List</title>
+    <link rel="stylesheet" href="style.css">
 
-    window.appInsights = appInsights;
-    appInsights.trackPageView(); 
-</script>
+    <script type="text/javascript">
+        !function (c, l, a, r, i, t, y) {
+            c['ApplicationInsightsAnalyticsObject'] = r;
+            c[r] = c[r] || function () { (c[r].queue = c[r].queue || []).push(arguments) };
+            t = l.createElement(a), t.async = 1, t.src = "https://az416426.vo.msecnd.net/scripts/a/ai.0.js";
+            y = l.getElementsByTagName(a)[0]; y.parentNode.insertBefore(t, y)
+        }(window, document, "script", "appInsights");
 
+        appInsights('config', {
+            instrumentationKey: '8ec7ae53-0284-4f6f-8eaf-54c46867e557',
+            enableAutoRouteTracking: true
+        });
+    </script>
 </head>
 
 <body>

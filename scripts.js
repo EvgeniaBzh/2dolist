@@ -95,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const taskIndex = currentTaskArray.findIndex(item => item.id == task.id);
             if (taskIndex !== -1) {
                 currentTaskArray[taskIndex].done = checkbox.checked;
-
             }
 
             localStorage.setItem(getSourceKey(li), JSON.stringify(currentTaskArray)); // Оновлюємо локальне сховище поточної категорії
@@ -160,8 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
             taskArray.push(task);
             localStorage.setItem(storageKey, JSON.stringify(taskArray));
             inputElement.value = '';
-
-            appInsights.trackEvent({ name: "Task Created", properties: { task: task } });
         }
     }
 
@@ -234,7 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function deleteTask(li, taskArray, storageKey) {
-        
         deleteTaskFromArray(li, taskArray, storageKey);
         li.remove();
     }
