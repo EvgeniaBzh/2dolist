@@ -151,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addTask(inputElement, taskList, storageKey) {
+        appInsights.trackEvent({ name: "Task Created", properties: { task: task } });
         const taskText = inputElement.value.trim();
         let taskArray = JSON.parse(localStorage.getItem(storageKey)) || [];;
         if (taskText) {
