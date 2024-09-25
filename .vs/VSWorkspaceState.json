@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\.github",
+    "\\.github\\workflows"
   ],
-  "SelectedNode": "\\C:\\Users\\Zhenia\\Source\\Repos\\2dolist",
+  "SelectedNode": "\\style.css",
   "PreviewInSolutionExplorer": false
 }

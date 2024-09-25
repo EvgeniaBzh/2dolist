@@ -1,3 +1,6 @@
+let sourceArray;
+let sourceKey;
+
 document.addEventListener('DOMContentLoaded', () => {
     const importantTaskInput = document.getElementById('importantTaskInput');
     const addImportantTaskButton = document.getElementById('addImportantTaskButton');
@@ -11,33 +14,91 @@ document.addEventListener('DOMContentLoaded', () => {
     const addOptionalTaskButton = document.getElementById('addOptionalTaskButton');
     const optionalTaskList = document.getElementById('optionalTaskList');
 
-    const importantTasks = JSON.parse(localStorage.getItem('importantTasks')) || [];
-    const mediumTasks = JSON.parse(localStorage.getItem('mediumTasks')) || [];
-    const optionalTasks = JSON.parse(localStorage.getItem('optionalTasks')) || [];
+    if (!localStorage.getItem(importantTaskList.id)) {
+        localStorage.setItem(importantTaskList.id, JSON.stringify([]));
+    }
+    if (!localStorage.getItem(mediumTaskList.id)) {
+        localStorage.setItem(mediumTaskList.id, JSON.stringify([]));
+    }
+    if (!localStorage.getItem(optionalTaskList.id)) {
+        localStorage.setItem(optionalTaskList.id, JSON.stringify([]));
+    }
 
-    importantTasks.forEach(task => addTaskToDOM(task, importantTaskList, importantTasks, 'importantTasks'));
-    mediumTasks.forEach(task => addTaskToDOM(task, mediumTaskList, mediumTasks, 'mediumTasks'));
-    optionalTasks.forEach(task => addTaskToDOM(task, optionalTaskList, optionalTasks, 'optionalTasks'));
+    const importantTaskArray = JSON.parse(localStorage.getItem('importantTaskList')) || [];
+    const mediumTaskArray = JSON.parse(localStorage.getItem('mediumTaskList')) || [];
+    const optionalTaskArray = JSON.parse(localStorage.getItem('optionalTaskList')) || [];
 
-    addImportantTaskButton.addEventListener('click', () => addTask(importantTaskInput, importantTaskList, importantTasks, 'importantTasks'));
-    addMediumTaskButton.addEventListener('click', () => addTask(mediumTaskInput, mediumTaskList, mediumTasks, 'mediumTasks'));
-    addOptionalTaskButton.addEventListener('click', () => addTask(optionalTaskInput, optionalTaskList, optionalTasks, 'optionalTasks'));
+    importantTaskArray.forEach(task => addTaskToDOM(task, importantTaskList, importantTaskArray, importantTaskList.id));
+    mediumTaskArray.forEach(task => addTaskToDOM(task, mediumTaskList, mediumTaskArray, mediumTaskList.id));
+    optionalTaskArray.forEach(task => addTaskToDOM(task, optionalTaskList, optionalTaskArray, optionalTaskList.id));
 
-    function addTaskToDOM(task, listElement, taskArray, storageKey) {
+    addImportantTaskButton.addEventListener('click', () => addTask(importantTaskInput, importantTaskList, importantTaskList.id));
+    addMediumTaskButton.addEventListener('click', () => addTask(mediumTaskInput, mediumTaskList, mediumTaskList.id));
+    addOptionalTaskButton.addEventListener('click', () => addTask(optionalTaskInput, optionalTaskList, optionalTaskList.id));
+
+    addImportantTaskButton.addEventListener('click', () => addTask(importantTaskInput, importantTaskList, importantTaskList.id));
+    addMediumTaskButton.addEventListener('click', () => addTask(mediumTaskInput, mediumTaskList, mediumTaskList.id));
+    addOptionalTaskButton.addEventListener('click', () => addTask(optionalTaskInput, optionalTaskList, optionalTaskList.id));
+
+    // New function to handle input length
+    function checkInputLength(inputElement, taskList, storageKey) {
+        let taskText = inputElement.value.trim();
+        if (taskText.length > 25) {
+            const tasks = splitLongTask(taskText);
+            tasks.forEach(task => {
+                if (task) {
+                    const taskObject = { id: Date.now(), text: task, done: false };
+                    addTaskToDOM(taskObject, taskList);
+                    let currentTaskArray = JSON.parse(localStorage.getItem(storageKey)) || [];
+                    currentTaskArray.push(taskObject);
+                    localStorage.setItem(storageKey, JSON.stringify(currentTaskArray));
+                }
+            });
+            inputElement.value = '';
+        } else if (taskText) {
+            const taskObject = { id: Date.now(), text: taskText, done: false };
+            addTaskToDOM(taskObject, taskList);
+            let currentTaskArray = JSON.parse(localStorage.getItem(storageKey)) || [];
+            currentTaskArray.push(taskObject);
+            localStorage.setItem(storageKey, JSON.stringify(currentTaskArray));
+            inputElement.value = '';
+        }
+    }
+
+    function splitLongTask(taskText) {
+        const splitTasks = [];
+        while (taskText.length > 0) {
+            splitTasks.push(taskText.substring(0, 25));
+            taskText = taskText.substring(25);
+        }
+        return splitTasks;
+    }
+
+    function addTask(inputElement, taskList, storageKey) {
+        checkInputLength(inputElement, taskList, storageKey);
+    }
+
+
+    function addTaskToDOM(task, taskList) {
         const li = document.createElement('li');
-        li.draggable = true; 
+        li.draggable = true;
+        li.dataset.id = task.id;
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = task.done;
         checkbox.addEventListener('change', () => {
-    task.done = checkbox.checked;
-    updateTaskStyle(li, task.done);
+            task.done = checkbox.checked;
+            updateTaskStyle(li, task.done);
 
-    const currentKey = getSourceKey(li); // Визначаємо поточну категорію
-    localStorage.setItem(currentKey, JSON.stringify(taskArray)); // Оновлюємо локальне сховище поточної категорії
-});
+            const currentTaskArray = getCurTaskArray(li);
+            const taskIndex = currentTaskArray.findIndex(item => item.id == task.id);
+            if (taskIndex !== -1) {
+                currentTaskArray[taskIndex].done = checkbox.checked;
+            }
 
+            localStorage.setItem(getSourceKey(li), JSON.stringify(currentTaskArray)); // Оновлюємо локальне сховище поточної категорії
+        });
 
         const span = document.createElement('span');
         span.textContent = task.text;
@@ -46,125 +107,98 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteButton.textContent = 'Delete';
         deleteButton.classList.add('delete-button');
         deleteButton.addEventListener('click', () => {
-            deleteTask(li, taskArray, storageKey);
+            deleteTask(li, getCurTaskArray(li), getSourceKey(li));
         });
 
         li.appendChild(checkbox);
         li.appendChild(span);
         li.appendChild(deleteButton);
-        listElement.appendChild(li);
+        taskList.appendChild(li);
 
         updateTaskStyle(li, task.done);
 
         li.addEventListener('dragstart', () => {
             li.classList.add('dragging');
+            sourceArray = getCurTaskArray(li);
+            sourceKey = getSourceKey(li);
         });
 
         li.addEventListener('dragend', () => {
             li.classList.remove('dragging');
-            saveOrder(listElement, taskArray, storageKey);
+            saveOrder(getCurTaskList(li), getSourceKey(li));
         });
 
-        listElement.addEventListener('dragend', () => {
-    li.classList.remove('dragging');
-    // Видалити завдання з попередньої категорії
-    const sourceKey = getSourceKey(li); // Отримуємо категорію, з якої взято завдання
-    const sourceArray = JSON.parse(localStorage.getItem(sourceKey)) || [];
-    deleteTaskFromArray(li, sourceArray, sourceKey);
-    
-    // Зберегти новий порядок у цільовій категорії
-    saveOrder(listElement, taskArray, storageKey);
-});
-
-
-        listElement.addEventListener('dragover', (e) => {
-            e.preventDefault();
+        taskList.addEventListener('dragover', (event) => {
+            event.preventDefault();
             const draggingTask = document.querySelector('.dragging');
-            const afterElement = getDragAfterElement(listElement, e.clientY);
+            const afterElement = getDragAfterElement(taskList, event.clientY);
             if (afterElement == null) {
-                listElement.appendChild(draggingTask);
+                taskList.appendChild(draggingTask);
             } else {
-                listElement.insertBefore(draggingTask, afterElement);
+                taskList.insertBefore(draggingTask, afterElement);
             }
         });
 
-        listElement.addEventListener('drop', (e) => {
-    const draggingTask = document.querySelector('.dragging');
-    const newTaskArray = updateTaskArray(draggingTask, taskArray, storageKey);
+        taskList.addEventListener('drop', () => {
+            const draggingTask = document.querySelector('.dragging');
+            const newTaskArray = updateTaskArray(draggingTask, getCurTaskArray(draggingTask), getSourceKey(draggingTask));
 
-    // Видаляємо завдання з попередньої категорії
-    const sourceKey = getSourceKey(draggingTask);
-    const sourceArray = JSON.parse(localStorage.getItem(sourceKey)) || [];
-    deleteTaskFromArray(draggingTask, sourceArray, sourceKey);
+            localStorage.setItem(getSourceKey(draggingTask), JSON.stringify(newTaskArray));
 
-    // Оновлюємо нову категорію
-    localStorage.setItem(storageKey, JSON.stringify(newTaskArray));
-});
+            deleteTaskFromArray(draggingTask, sourceArray, sourceKey);
+        });
 
     }
 
-    function addTask(inputElement, listElement, taskArray, storageKey) {
+    function addTask(inputElement, taskList, storageKey) {
         const taskText = inputElement.value.trim();
+        let taskArray = JSON.parse(localStorage.getItem(storageKey)) || [];;
         if (taskText) {
-            const task = { text: taskText, done: false };
-            addTaskToDOM(task, listElement, taskArray, storageKey);
+            const task = { id: Date.now(), text: taskText, done: false };
+            addTaskToDOM(task, taskList, taskArray, storageKey);
             taskArray.push(task);
             localStorage.setItem(storageKey, JSON.stringify(taskArray));
             inputElement.value = '';
         }
     }
 
-    function getSourceKey(taskElement) {
-    // Наприклад, можна отримати ключ зі списку (listElement) батьківського елемента
-    return taskElement.closest('ul').dataset.key; // наприклад, data-key="middle" або "optional"
-}
-
-
-function updateTaskArray(draggingTask, targetArray, targetKey) {
-    const taskText = draggingTask.querySelector('span').textContent;
-    const sourceKey = getSourceKey(draggingTask);
-
-    const sourceArray = JSON.parse(localStorage.getItem(sourceKey)) || [];
-    const index = sourceArray.findIndex(task => task.text === taskText);
-    if (index !== -1) {
-        sourceArray.splice(index, 1); 
-        localStorage.setItem(sourceKey, JSON.stringify(sourceArray));
-    }
-
-    const doneStatus = draggingTask.querySelector('input[type="checkbox"]').checked;
-    const newTask = { text: taskText, done: doneStatus };
-
-    const existingIndex = targetArray.findIndex(task => task.text === taskText);
-    if (existingIndex === -1) {
-        targetArray.push(newTask);
-    } else {
-        targetArray[existingIndex].done = doneStatus;
-    }
-
-    return targetArray;
-}
-
-
-    function getSourceKey(draggingTask) {
-        if (importantTaskList.contains(draggingTask)) {
-            return 'importantTasks';
-        } else if (mediumTaskList.contains(draggingTask)) {
-            return 'mediumTasks';
-        } else if (optionalTaskList.contains(draggingTask)) {
-            return 'optionalTasks';
+    function updateTaskArray(draggingTask, taskArray) {
+        const taskId = draggingTask.dataset.id;
+        const taskText = draggingTask.querySelector('span').textContent;
+        const doneStatus = draggingTask.querySelector('input[type="checkbox"]').checked;
+        const newTask = { id: taskId, text: taskText, done: doneStatus };
+        const existingIndex = taskArray.findIndex(task => task.id === taskId);
+        if (existingIndex === -1) {
+            taskArray.push(newTask);
+        } else {
+            taskArray[existingIndex].done = doneStatus;
         }
+        return taskArray;
+    }
+
+    function getCurTaskList(listItem) {
+        return listItem.closest('ul');
+    }
+
+    function getCurTaskArray(listItem) {
+        const storageKey = getSourceKey(listItem);
+        return JSON.parse(localStorage.getItem(storageKey)) || [];
+    }
+
+    function getSourceKey(listItem) {
+        return listItem.closest('ul').id;
     }
 
     function updateTaskStyle(li, isDone) {
         if (isDone) {
-            li.classList.add('completed');
+            li.querySelector('span').classList.add('completed');
         } else {
-            li.classList.remove('completed');
+            li.querySelector('span').classList.remove('completed');
         }
     }
 
-    function getDragAfterElement(listElement, y) {
-        const draggableElements = [...listElement.querySelectorAll('li:not(.dragging)')];
+    function getDragAfterElement(taskList, y) {
+        const draggableElements = [...taskList.querySelectorAll('li:not(.dragging)')];
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
             const offset = y - box.top - box.height / 2;
@@ -176,32 +210,28 @@ function updateTaskArray(draggingTask, targetArray, targetKey) {
         }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
-    function saveOrder(listElement, taskArray, storageKey) {
+    function saveOrder(taskList, storageKey) {
         const updatedTasks = [];
-        listElement.querySelectorAll('li').forEach((li) => {
+        taskList.querySelectorAll('li').forEach((li) => {
             const text = li.querySelector('span').textContent;
             const done = li.querySelector('input[type="checkbox"]').checked;
-            updatedTasks.push({ text: text, done: done });
+            const id = li.dataset.id;
+            updatedTasks.push({ id: id, text: text, done: done });
         });
         localStorage.setItem(storageKey, JSON.stringify(updatedTasks));
     }
 
     function deleteTaskFromArray(li, taskArray, storageKey) {
-    const taskText = li.querySelector('span').textContent;
-    const index = taskArray.findIndex(task => task.text === taskText);
-    if (index !== -1) {
-        taskArray.splice(index, 1); 
-        localStorage.setItem(storageKey, JSON.stringify(taskArray)); 
+        const taskId = li.dataset.id;
+        const index = taskArray.findIndex(task => task.id == taskId);
+        if (index !== -1) {
+            taskArray.splice(index, 1);
+            localStorage.setItem(storageKey, JSON.stringify(taskArray));
+        }
     }
-}
 
     function deleteTask(li, taskArray, storageKey) {
-        const taskText = li.querySelector('span').textContent;
-        const index = taskArray.findIndex(task => task.text === taskText);
-        if (index !== -1) {
-            taskArray.splice(index, 1); 
-            localStorage.setItem(storageKey, JSON.stringify(taskArray)); 
-            li.remove(); 
-        }
+        deleteTaskFromArray(li, taskArray, storageKey);
+        li.remove();
     }
 });
