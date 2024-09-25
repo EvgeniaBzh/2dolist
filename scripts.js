@@ -160,7 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
             taskArray.push(task);
             localStorage.setItem(storageKey, JSON.stringify(taskArray));
             inputElement.value = '';
-            
+
+            appInsights.trackEvent({ name: "Task Created", properties: { task: task } });
         }
     }
 
