@@ -1,0 +1,7 @@
+version: "3"
+services:
+  web:
+    image: 2dolist-app
+    build: .
+    ports:
+      - "8081:8080"
