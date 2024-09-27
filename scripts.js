@@ -151,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addTask(inputElement, taskList, storageKey) {
+       
         const taskText = inputElement.value.trim();
         let taskArray = JSON.parse(localStorage.getItem(storageKey)) || [];;
         if (taskText) {
@@ -160,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem(storageKey, JSON.stringify(taskArray));
             inputElement.value = '';
         }
+         appInsights.trackEvent({ name: "Task Created", properties: { task: task } });
     }
 
     function updateTaskArray(draggingTask, taskArray) {
