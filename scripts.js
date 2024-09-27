@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentTaskArray[taskIndex].done = checkbox.checked;
             }
 
-            localStorage.setItem(getSourceKey(li), JSON.stringify(currentTaskArray)); // Оновлюємо локальне сховище поточної категорії
+            localStorage.setItem(getSourceKey(li), JSON.stringify(currentTaskArray)); 
         });
 
         const span = document.createElement('span');
