@@ -2,6 +2,16 @@ let sourceArray;
 let sourceKey;
 
 document.addEventListener('DOMContentLoaded', () => {
+    const socket = new WebSocket('ws://localhost:8080');
+
+    socket.onopen = () => {
+        console.log('WebSocket connection established');
+    };
+
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        updateTaskList(data); 
+    };
     const importantTaskInput = document.getElementById('importantTaskInput');
     const addImportantTaskButton = document.getElementById('addImportantTaskButton');
     const importantTaskList = document.getElementById('importantTaskList');
@@ -40,7 +50,12 @@ document.addEventListener('DOMContentLoaded', () => {
     addMediumTaskButton.addEventListener('click', () => addTask(mediumTaskInput, mediumTaskList, mediumTaskList.id));
     addOptionalTaskButton.addEventListener('click', () => addTask(optionalTaskInput, optionalTaskList, optionalTaskList.id));
 
-    // New function to handle input length
+
+    function sendTaskUpdate(task) {
+        const data = JSON.stringify(task);
+        socket.send(data);
+    }
+
     function checkInputLength(inputElement, taskList, storageKey) {
         let taskText = inputElement.value.trim();
         if (taskText.length > 25) {
@@ -77,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function addTask(inputElement, taskList, storageKey) {
         checkInputLength(inputElement, taskList, storageKey);
     }
-
 
     function addTaskToDOM(task, taskList) {
         const li = document.createElement('li');
@@ -150,18 +164,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     }
 
-    function addTask(inputElement, taskList, storageKey) {
-       
+     function addTask(inputElement, taskList, storageKey) {
         const taskText = inputElement.value.trim();
-        let taskArray = JSON.parse(localStorage.getItem(storageKey)) || [];;
+        let taskArray = JSON.parse(localStorage.getItem(storageKey)) || [];
         if (taskText) {
             const task = { id: Date.now(), text: taskText, done: false };
             addTaskToDOM(task, taskList, taskArray, storageKey);
             taskArray.push(task);
             localStorage.setItem(storageKey, JSON.stringify(taskArray));
+            sendTaskUpdate(task); // Send the task update via WebSocket
             inputElement.value = '';
         }
-         appInsights.trackEvent({ name: "Task Created", properties: { task: task } });
     }
 
     function updateTaskArray(draggingTask, taskArray) {
@@ -223,17 +236,18 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(storageKey, JSON.stringify(updatedTasks));
     }
 
-    function deleteTaskFromArray(li, taskArray, storageKey) {
-        const taskId = li.dataset.id;
-        const index = taskArray.findIndex(task => task.id == taskId);
-        if (index !== -1) {
-            taskArray.splice(index, 1);
-            localStorage.setItem(storageKey, JSON.stringify(taskArray));
-        }
-    }
-
     function deleteTask(li, taskArray, storageKey) {
         deleteTaskFromArray(li, taskArray, storageKey);
         li.remove();
     }
+
+    function deleteTaskFromArray(taskElement, taskArray, storageKey) {
+    const taskId = taskElement.dataset.id;
+    const taskIndex = taskArray.findIndex(task => task.id == taskId);
+    if (taskIndex !== -1) {
+        taskArray.splice(taskIndex, 1);
+        localStorage.setItem(storageKey, JSON.stringify(taskArray));
+    }
+}
+
 });

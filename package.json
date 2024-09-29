@@ -9,6 +9,13 @@
   "author": "EugeniaBzh",
   "license": "ISC",
   "dependencies": {
-    "live-server": "^1.2.2"
+    "cypress-drag-drop": "^1.1.1",
+    "express": "^4.21.0",
+    "live-server": "^1.2.0",
+    "socket.io": "^4.8.0"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "cypress": "^13.15.0"
   }
 }
